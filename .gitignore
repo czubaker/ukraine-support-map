@@ -12,3 +12,4 @@ raw/rosters.json
 raw/rosters_extra.json
 raw/states.json
 # kept in git: raw/instagram.json, raw/igimg/ (cards collected over time), raw/factions.json (fallback)
+logs/
