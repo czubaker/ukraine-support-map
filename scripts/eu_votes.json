@@ -1,0 +1,222 @@
+{
+ "_readme": "Ukraine-related European Parliament votes used for MEP scores. 'votes': counted votes; dir 'pro' = voting FOR helps Ukraine, 'anti' = voting FOR hurts Ukraine; weight 0.25-1.25. 'excluded': reviewed and deliberately not counted. New Ukraine/Russia votes that are in neither list are added automatically with reviewed=false and flagged for review.",
+ "votes": {
+  "169889": {
+   "weight": 1.25,
+   "dir": "pro",
+   "label": "€35bn macro-financial assistance loan (ERA, G7 loans backed by Russian assets)",
+   "reviewed": true
+  },
+  "184699": {
+   "weight": 1.25,
+   "dir": "pro",
+   "label": "Ukraine Support Loan for 2026–2027",
+   "reviewed": true
+  },
+  "184700": {
+   "weight": 1.25,
+   "dir": "pro",
+   "label": "Amending the Ukraine Facility (€50bn programme)",
+   "reviewed": true
+  },
+  "169362": {
+   "weight": 1.0,
+   "dir": "pro",
+   "label": "Resolution: EU's continuous support for Ukraine (Jul 2024)",
+   "reviewed": true
+  },
+  "169676": {
+   "weight": 1.0,
+   "dir": "pro",
+   "label": "Resolution: continued financial and military support to Ukraine (Sep 2024)",
+   "reviewed": true
+  },
+  "170917": {
+   "weight": 1.0,
+   "dir": "pro",
+   "label": "Resolution: reinforcing EU support against Russia's war (Nov 2024)",
+   "reviewed": true
+  },
+  "172663": {
+   "weight": 1.0,
+   "dir": "pro",
+   "label": "Resolution: unwavering support after three years of war (Mar 2025)",
+   "reviewed": true
+  },
+  "178062": {
+   "weight": 1.0,
+   "dir": "pro",
+   "label": "Resolution: the human cost of Russia's war (Jul 2025)",
+   "reviewed": true
+  },
+  "182353": {
+   "weight": 1.0,
+   "dir": "pro",
+   "label": "Resolution: EU position on the proposed peace plan (Nov 2025)",
+   "reviewed": true
+  },
+  "185885": {
+   "weight": 1.0,
+   "dir": "pro",
+   "label": "Resolution: four years of Russia's war of aggression (Feb 2026)",
+   "reviewed": true
+  },
+  "192341": {
+   "weight": 1.0,
+   "dir": "pro",
+   "label": "Resolution: accountability for attacks on civilians (Apr 2026)",
+   "reviewed": true
+  },
+  "179770": {
+   "weight": 0.75,
+   "dir": "pro",
+   "label": "Resolution: response to Russian airspace violations (Oct 2025)",
+   "reviewed": true
+  },
+  "194611": {
+   "weight": 0.75,
+   "dir": "pro",
+   "label": "Resolution: Russian drone incursions into Romania and the Baltics (Jun 2026)",
+   "reviewed": true
+  },
+  "199517": {
+   "weight": 0.75,
+   "dir": "pro",
+   "label": "Resolution: Russian strikes on Black Sea shipping (Oct 2026)",
+   "reviewed": true
+  },
+  "176844": {
+   "weight": 1.0,
+   "dir": "pro",
+   "label": "Tariffs on Russian and Belarusian fertilisers and farm goods",
+   "reviewed": true
+  },
+  "182807": {
+   "weight": 1.0,
+   "dir": "pro",
+   "label": "Phasing out Russian natural gas imports (final agreement)",
+   "reviewed": true
+  },
+  "182887": {
+   "weight": 1.0,
+   "dir": "anti",
+   "label": "Motion to REJECT the Russian gas phase-out",
+   "reviewed": true
+  },
+  "171628": {
+   "weight": 0.75,
+   "dir": "pro",
+   "label": "Resolution: Russian disinformation and history falsification",
+   "reviewed": true
+  },
+  "198216": {
+   "weight": 0.5,
+   "dir": "pro",
+   "label": "Resolution: the 2026 undemocratic Russian Duma elections",
+   "reviewed": true
+  },
+  "189169": {
+   "weight": 0.5,
+   "dir": "pro",
+   "label": "Resolution: trafficking of foreigners recruited into Russia's army",
+   "reviewed": true
+  },
+  "175398": {
+   "weight": 1.0,
+   "dir": "pro",
+   "label": "Extending duty-free access for Ukrainian products",
+   "reviewed": true
+  },
+  "177335": {
+   "weight": 1.0,
+   "dir": "pro",
+   "label": "EU–Ukraine agreement updating trade terms (DCFTA)",
+   "reviewed": true
+  },
+  "176688": {
+   "weight": 0.5,
+   "dir": "pro",
+   "label": "Recognising Ukrainian and Moldovan seed inspections as equivalent",
+   "reviewed": true
+  },
+  "176875": {
+   "weight": 0.5,
+   "dir": "anti",
+   "label": "Motion to REJECT recognition of Ukrainian/Moldovan seed inspections",
+   "reviewed": true
+  },
+  "178334": {
+   "weight": 0.75,
+   "dir": "pro",
+   "label": "Report on Ukraine's EU accession progress (2023–2024)",
+   "reviewed": true
+  },
+  "195067": {
+   "weight": 0.75,
+   "dir": "pro",
+   "label": "Report on Ukraine's EU accession progress (2025)",
+   "reviewed": true
+  },
+  "171398": {
+   "weight": 0.75,
+   "dir": "pro",
+   "label": "Resolution: 11 years of Russian occupation of Crimea",
+   "reviewed": true
+  },
+  "176309": {
+   "weight": 0.75,
+   "dir": "pro",
+   "label": "Resolution: return of Ukrainian children deported by Russia (May 2025)",
+   "reviewed": true
+  },
+  "200503": {
+   "weight": 0.75,
+   "dir": "pro",
+   "label": "Resolution: Ukrainian children deported to Russia (Nov 2026)",
+   "reviewed": true
+  },
+  "181587": {
+   "weight": 0.5,
+   "dir": "pro",
+   "label": "European Defence Industry Programme incl. Ukraine Support Instrument",
+   "reviewed": true
+  },
+  "181879": {
+   "weight": 0.5,
+   "dir": "anti",
+   "label": "Motion to REJECT the defence industry programme (EDIP)",
+   "reviewed": true
+  },
+  "171705": {
+   "weight": 0.25,
+   "dir": "pro",
+   "label": "Renewing EU–Ukraine science cooperation",
+   "reviewed": true
+  }
+ },
+ "excluded": {
+  "169544": "The severe situation of political prisoners in Belarus",
+  "169770": "Strengthening Moldova’s resilience against Russian interference ahead of the upcoming presidential elections and a constitutional referendum on EU integration",
+  "170866": "Georgia's worsening democratic crisis following the recent parliamentary elections and alleged electoral fraud",
+  "170871": "The increasing and systematic repression of women in Iran",
+  "171271": "Setting up a Special Committee on the European Democracy Shield, and defining its responsibilities, numerical strength and term of office",
+  "171462": "Need for actions to address the continued oppression and fake elections in Belarus",
+  "172585": "The need for EU support towards a just transition and reconstruction in Syria",
+  "172867": "White paper on the future of European defence",
+  "173801": "Guidelines for the 2026 budget – Section III",
+  "174880": "Granting equivalence with EU requirements to Moldova and Ukraine as regards field inspections and production of seed",
+  "174988": "Immediate risk of further repression by Lukashenka’s regime in Belarus - threats from the Investigative Committee",
+  "177169": "2023 and 2024 reports on Moldova",
+  "177733": "Security of energy supply in the EU",
+  "177786": "2023 and 2024 reports on Georgia",
+  "178218": "Arbitrary arrest and torture of Belgian-Portuguese researcher Joseph Figueira Martin in the Central African Republic",
+  "178788": "Strengthening Moldova’s resilience against Russian hybrid threats and malign interference",
+  "179918": "Situation in Belarus, five years after the fraudulent presidential elections",
+  "182922": "Continuous Belarusian hybrid attacks against Lithuania",
+  "183021": "Drones and new systems of warfare – the EU’s need to adapt to be fit for today’s security challenges",
+  "192430": "Negative trade-related effects of global overcapacity on the Union steel market",
+  "194644": "Deteriorating situation of political prisoners in Belarus, in particular the case of Aliaksandra Pulinovich",
+  "194917": "2025 Commission report on Moldova",
+  "196116": "Simplification of intra-EU transfers of defence-related products and simplification of security and defence procurement (Omnibus V)"
+ }
+}

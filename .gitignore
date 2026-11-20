@@ -1,0 +1,14 @@
+.venv/
+build/
+.claude/
+site/.vercel/
+.vercel/
+__pycache__/
+# large downloads, re-fetched on every run
+raw/eu/
+raw/bills.json
+raw/bundles.json
+raw/rosters.json
+raw/rosters_extra.json
+raw/states.json
+# kept in git: raw/instagram.json, raw/igimg/ (cards collected over time), raw/factions.json (fallback)

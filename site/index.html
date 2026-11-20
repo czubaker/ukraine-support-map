@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ukraine Support Map</title>
+<meta name="description" content="Every member of the U.S. Congress, colored by their record on Ukraine. Unofficial visualization of Track Ukraine data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="flag" aria-hidden="true"></div>
+  <div class="brand">Ukraine Support Map</div><nav class="nav" aria-label="Region"><a href="./" aria-current="page">US Congress</a><a href="eu.html">European Parliament</a></nav>
+  <div class="spacer"></div>
+  <div class="seg" role="group" aria-label="Which Congress" id="cseg">
+    <button data-cong="119" aria-pressed="true">119th · now</button>
+    <button data-cong="120" aria-pressed="false">120th · from Jan 3</button>
+  </div>
+  <div class="seg" role="group" aria-label="Color seats by" id="colseg">
+    <button data-color="rating" aria-pressed="true">Rating</button>
+    <button data-color="party" aria-pressed="false">Party</button>
+    <button data-color="tu" aria-pressed="false">Track Ukraine</button>
+  </div>
+</div></header>
+
+<main class="wrap">
+  <h1 id="h1">Where Congress stands on Ukraine</h1>
+  <p class="tunote" id="c120Note" hidden><b>120th Congress, taking office January 3, 2027</b>, as elected on November 3, 2026 (from <a href="https://en.wikipedia.org/wiki/120th_United_States_Congress" target="_blank" rel="noopener">Wikipedia's member list</a>). Returning members keep their record and score. <b>New members have no congressional voting record yet</b> and are shown in light grey, unless Track Ukraine has published a rating card for them: switch to <b>Track Ukraine</b> coloring to see those. Factions show returning members only, since caucuses re-form after January 3.</p>
+  <p class="lede">Every seat in the House and Senate, colored by the member's record on Ukraine: votes on aid, sanctions and oversight, sponsored bills, and researcher notes. Scores run from <b>−1 (strongly opposed)</b> to <b>+1 (strongly supportive)</b>. Click a seat, a state or a name to see the record.</p>
+
+  <p class="tunote" id="tuNote" hidden><b>Track Ukraine mode</b> shows only Track Ukraine's own verdicts from their Instagram rating cards: green “Supports Ukraine”, yellow “Unclear on Ukraine”, red “Opposes Ukraine”. Grey seats have no card yet. Cards are collected from Track Ukraine's site feed, which shows only their latest posts, so coverage grows with each refresh. Their verdicts can differ from the vote-based score: Steil and Huizenga get red cards despite a mostly supportive voting record.</p>
+  <div class="chambers us">
+    <div class="card"><h2>House <span id="houseSub"></span><label class="flt"><input type="checkbox" id="fLabels" checked> Faction labels</label></h2><svg class="hemi" id="house" viewBox="0 0 1200 625"></svg><div class="flegend" id="flegend"></div><div id="houseStats"></div></div>
+    <div class="card"><h2>Senate <span id="senSub"></span></h2><svg class="hemi" id="senate" viewBox="0 0 1200 625"></svg><div id="senStats"></div></div>
+  </div>
+
+  <section class="blk">
+    <h3>By faction</h3>
+    <p>Caucuses and factions inside each party, and how their members rate. Membership is taken from Wikipedia's caucus member lists. Selecting a card ticks the same faction filter as under the House map.</p>
+    <div class="factions" id="factions"></div>
+  </section>
+
+  <section class="blk">
+    <h3>By state</h3>
+    <p>Average score of each state's delegation (House + Senate). Click a state to filter.</p>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section class="blk">
+    <h3>All members</h3>
+    <div class="tools">
+      <input id="q" type="search" placeholder="Search name or state…" aria-label="Search members">
+      <select id="fCh" aria-label="Chamber"><option value="">Both chambers</option><option>House</option><option>Senate</option></select>
+      <select id="fP" aria-label="Party"><option value="">All parties</option><option value="D">Democrats</option><option value="R">Republicans</option><option value="I">Independents</option></select>
+      <select id="fB" aria-label="Rating"><option value="">All ratings</option></select>
+      <span id="stateChip"></span>
+    </div>
+    <div class="tablewrap"><table>
+      <thead><tr><th data-k="name">Member</th><th data-k="state">State</th><th data-k="chamber" class="hide-sm">Chamber</th><th data-k="score">Score</th><th data-k="label" class="hide-sm">Rating</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <p class="count" id="count"></p>
+    <button class="more" id="more" hidden>Show more</button>
+  </section>
+
+  <section class="blk">
+    <h3>Sources</h3>
+    <p>Everything on this page can be traced back. Open any member to see links for each vote.</p>
+    <div class="sources">
+      <div><b>Ratings and bill list</b><a href="https://trackukraine.com/pages/search" target="_blank" rel="noopener">Track Ukraine Support Tracker</a>: which bills count, whether each is pro- or anti-Ukraine, vote weights, researcher notes.</div>
+      <div><b>How each member voted</b>Official roll calls from <a href="https://clerk.house.gov/Votes" target="_blank" rel="noopener">clerk.house.gov</a> and <a href="https://www.senate.gov/legislative/votes_new.htm" target="_blank" rel="noopener">senate.gov</a>. Every vote in a member's card links to its roll call.</div>
+      <div><b>Bills and sponsors</b><a href="https://www.congress.gov" target="_blank" rel="noopener">congress.gov</a>: text, status and cosponsors of each bill.</div>
+      <div><b>Factions</b>Caucus member lists on Wikipedia (<a href="https://en.wikipedia.org/wiki/Freedom_Caucus" target="_blank" rel="noopener">example</a>), matched to members by their official Congress ID through Wikidata. Each member card links to its list.</div>
+      <div><b>Rating cards</b><a href="https://instagram.com/trackukraine" target="_blank" rel="noopener">@trackukraine on Instagram</a>. Cards are attached to a member when they appear in Track Ukraine's site feed (<span id="igc"></span> posts collected so far).</div>
+    </div>
+  </section>
+
+  <footer>
+    Snapshot taken <span id="gen"></span>. Scores use the same formula as Track Ukraine's tracker: roll-call votes weighted by importance, sponsorship (×1.5) and researcher notes, pulled toward the party average for members with a short record. Members with fewer than 2 scored actions show as <i>No record</i>. One correction to Track Ukraine's data: for H.R. 4365 (FY24 defense budget) we score the Gaetz amendment, roll call 438, which is the vote their own note names, instead of the final-passage votes their data uses. Because of this, scores differ slightly from trackukraine.com (e.g. Massie −0.76 there, −0.82 here).<br>
+    Unofficial fan visualization, not affiliated with Track Ukraine. <a href="https://trackukraine.com/pages/search" target="_blank" rel="noopener">trackukraine.com</a> is the authoritative record.
+  </footer>
+</main>
+
+<div id="tip"></div>
+<div class="scrim" id="scrim"></div>
+<aside id="drawer" aria-hidden="true"><div class="in" id="dIn"></div></aside>
+
+<script>
+(async function(){
+const BUCKETS=[
+  {k:"s3",name:"Strong support",min:.75,v:"--b3"},
+  {k:"s2",name:"Support",min:.35,v:"--b2"},
+  {k:"s1",name:"Some support",min:.1,v:"--b1"},
+  {k:"s0",name:"Mixed",min:-.1,v:"--b0",excl:true},
+  {k:"o1",name:"Some opposition",min:-.35,v:"--bm1",excl:true},
+  {k:"o2",name:"Opposed",min:-.75,v:"--bm2",excl:true},
+  {k:"o3",name:"Strong opposition",min:-Infinity,v:"--bm3"},
+  {k:"na",name:"No record",v:"--none"},
+  {k:"nw",name:"New member (no record yet)",v:"--new"},
+  {k:"tbd",name:"Race not called",v:"--empty"}
+];
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function bucket(s){ if(s==null) return BUCKETS[7];
+  if(s>=.75)return BUCKETS[0]; if(s>=.35)return BUCKETS[1]; if(s>=.1)return BUCKETS[2];
+  if(s>-.1)return BUCKETS[3]; if(s>-.35)return BUCKETS[4]; if(s>-.75)return BUCKETS[5]; return BUCKETS[6]; }
+const PARTY={D:"--dem",R:"--rep",I:"--ind"};
+// Track Ukraine's own verdicts (header color of their Instagram rating cards)
+const TU=[{k:"tb",name:"Blue card",v:"--tu-blue"},{k:"tg",name:"Supports Ukraine",v:"--tu-green"},{k:"ty",name:"Unclear on Ukraine",v:"--tu-yellow"},{k:"tr",name:"Opposes Ukraine",v:"--tu-red"},{k:"tn",name:"No Track Ukraine card",v:"--empty"}];
+const FACTIONS={
+  dsa:{short:"DSA",name:"Democratic Socialists of America",side:"D",desc:"Members of Congress who are DSA members"},
+  squad:{short:"Squad",name:"The Squad",side:"D",desc:"Left-wing House Democrats"},
+  cpc:{short:"CPC",name:"Congressional Progressive Caucus",side:"D",desc:"Largest progressive bloc"},
+  newdem:{short:"NewDem",name:"New Democrat Coalition",side:"D",desc:"Center-left, pro-business Democrats"},
+  bluedog:{short:"BlueDog",name:"Blue Dog Coalition",side:"D",desc:"Conservative Democrats"},
+  psc:{short:"PSC",name:"Problem Solvers Caucus",side:"X",desc:"Bipartisan, both parties"},
+  rgg:{short:"RGG",name:"Republican Governance Group",side:"R",desc:"Moderate Republicans"},
+  msc:{short:"MainSt",name:"Main Street Caucus",side:"R",desc:"Pragmatic conservatives"},
+  rsc:{short:"RSC",name:"Republican Study Committee",side:"R",desc:"Largest conservative bloc"},
+  hfc:{short:"HFC",name:"House Freedom Caucus",side:"R",desc:"Hard-right Republicans"}
+};
+const fBadges=m=>(m.f||[]).map(k=>`<span class="fb ${k==="dsa"?"dsa":FACTIONS[k].side}" title="${esc(FACTIONS[k].name)}">${FACTIONS[k].short}</span>`).join("");
+const tuBadge=m=>m.tu?`<span class="tuv" style="background:var(${tuOf(m).v});${m.tu==="blue"||m.tu==="red"||m.tu==="green"?"color:#fff":""}" title="Track Ukraine card">TU: ${esc(tuOf(m).name)}</span>`:"";
+const tuOf=m=>({blue:TU[0],green:TU[1],yellow:TU[2],red:TU[3]})[m.tu]||TU[4];
+const cats=()=>colorBy==="tu"?TU:BUCKETS;
+const rateOf=m=>m.status==="tbd"?BUCKETS[9]:(m.status==="new"||m.status==="former")?BUCKETS[8]:bucket(m.score);
+const catOf=m=>colorBy==="tu"?tuOf(m):rateOf(m);
+const STATE_NAMES={AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",CT:"Connecticut",DE:"Delaware",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KS:"Kansas",KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",MS:"Mississippi",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",ND:"North Dakota",OH:"Ohio",OK:"Oklahoma",OR:"Oregon",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",SD:"South Dakota",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",WA:"Washington",WV:"West Virginia",WI:"Wisconsin",WY:"Wyoming",DC:"District of Columbia",AS:"American Samoa",GU:"Guam",MP:"Northern Mariana Islands",PR:"Puerto Rico",VI:"U.S. Virgin Islands"};
+// tile-grid map [col,row]
+const GRID={AK:[0,0],ME:[11,0],VT:[10,1],NH:[11,1],WA:[1,2],ID:[2,2],MT:[3,2],ND:[4,2],MN:[5,2],IL:[6,2],WI:[7,2],MI:[8,2],NY:[9,2],RI:[10,2],MA:[11,2],OR:[1,3],NV:[2,3],WY:[3,3],SD:[4,3],IA:[5,3],IN:[6,3],OH:[7,3],PA:[8,3],NJ:[9,3],CT:[10,3],CA:[1,4],UT:[2,4],CO:[3,4],NE:[4,4],MO:[5,4],KY:[6,4],WV:[7,4],VA:[8,4],MD:[9,4],DE:[10,4],AZ:[2,5],NM:[3,5],KS:[4,5],AR:[5,5],TN:[6,5],NC:[7,5],SC:[8,5],DC:[9,5],OK:[4,6],LA:[5,6],MS:[6,6],AL:[7,6],GA:[8,6],HI:[0,7],TX:[4,7],FL:[9,7],PR:[11,7]};
+
+let data;
+try{ data=await (await fetch("data.json")).json(); }catch(e){ document.querySelector("main").insertAdjacentHTML("afterbegin","<p>Could not load data.</p>"); return; }
+let M=data.members; const V=data.votes, M119=data.members; let M120=null, congress="119";
+document.getElementById("igc").textContent=data.igCount||0;
+document.getElementById("gen").textContent=new Date(data.generatedAt).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+let colorBy="rating", filterBucket=null, filterState=null, filterFactions=new Set(), selected=null;
+const passes=m=>(!filterBucket||catOf(m).k===filterBucket)&&(!filterState||m.state===filterState)&&(!filterFactions.size||(m.f||[]).some(k=>filterFactions.has(k)));
+const exceptBucket=m=>(!filterState||m.state===filterState)&&(!filterFactions.size||(m.f||[]).some(k=>filterFactions.has(k)));
+
+const color=m=>colorBy==="party"?css(PARTY[m.party]||"--ind"):css(catOf(m).v);
+const fmt=s=>s==null?"—":(s>0?"+":"")+s.toFixed(2);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const seatName=m=>m.chamber==="Senate"?`Senator, ${m.state}`:m.nonVoting?`Delegate, ${m.state}`:`Rep., ${m.state}${m.district?"-"+m.district:" at-large"}`;
+
+// ---------- hemicycle ----------
+function seatPositions(total, rows, r0, r1, cx, cy){
+  // distribute seats across rows proportional to arc length
+  const radii=[...Array(rows)].map((_,i)=>r0+(r1-r0)*i/(rows-1));
+  const sumR=radii.reduce((a,b)=>a+b,0);
+  let counts=radii.map(r=>Math.round(total*r/sumR));
+  let diff=total-counts.reduce((a,b)=>a+b,0); counts[rows-1]+=diff;
+  const pts=[];
+  radii.forEach((r,i)=>{ const n=counts[i];
+    for(let j=0;j<n;j++){ const a=Math.PI*(1-(n===1?.5:j/(n-1)));
+      pts.push({x:cx+r*Math.cos(a), y:cy-r*Math.sin(a), a}); } });
+  pts.sort((p,q)=>q.a-p.a || Math.hypot(p.x-cx,p.y-cy)-Math.hypot(q.x-cx,q.y-cy));
+  return pts;
+}
+function orderMembers(list){
+  const rank={D:0,I:1,R:2};
+  const sc=m=>m.score==null?-9:m.score;
+  const tr=m=>colorBy==="tu"?TU.indexOf(tuOf(m)):0;
+  return list.slice().sort((a,b)=>{
+    const pa=rank[a.party]??1, pb=rank[b.party]??1; if(pa!==pb) return pa-pb;
+    if(tr(a)!==tr(b)) return tr(a)-tr(b);
+    // Dems: most supportive on far left; Reps: least supportive on far right
+    return sc(b)-sc(a);
+  });
+}
+// One faction code per seat: the most specific group wins
+const FPRIO=["dsa","squad","hfc","bluedog","rgg","newdem","cpc","msc","rsc","psc"];
+const FCODE={dsa:"DS",squad:"SQ",hfc:"FC",bluedog:"BD",rgg:"RG",newdem:"ND",cpc:"PC",msc:"MS",rsc:"RS",psc:"PS"};
+const primaryFaction=m=>FPRIO.find(k=>(m.f||[]).includes(k));
+function drawHemi(svgId, list, total, rows, rDot){
+  const svg=document.getElementById(svgId);
+  const pts=seatPositions(total, rows, 230, 580, 600, 600);
+  const ms=orderMembers(list);
+  let h="", t="";
+  pts.forEach((p,i)=>{ const m=ms[i]; const x=p.x.toFixed(1), y=p.y.toFixed(1);
+    if(m){ h+=`<circle cx="${x}" cy="${y}" r="${rDot}" data-id="${m.id}"></circle>`;
+      const f=primaryFaction(m); if(f) t+=`<text class="fl" data-id="${m.id}" x="${x}" y="${(p.y+rDot*.34).toFixed(1)}" text-anchor="middle" font-size="${(rDot*.92).toFixed(1)}">${FCODE[f]}</text>`; }
+    else h+=`<circle cx="${x}" cy="${y}" r="${rDot}" fill="var(--empty)" data-vacant="1"></circle>`;
+  });
+  h+=t+`<text class="center-n" x="600" y="545" text-anchor="middle" id="${svgId}N"></text><text class="center-l" x="600" y="585" text-anchor="middle" id="${svgId}L"></text>`;
+  svg.innerHTML=h;
+}
+let house, senate, byId;
+function setRoster(list){ M=list; house=M.filter(m=>m.chamber==="House"&&!m.nonVoting); senate=M.filter(m=>m.chamber==="Senate"); byId=Object.fromEntries(M.map(m=>[m.id,m])); }
+setRoster(M119);
+function drawAll(){ drawHemi("house",house,435,12,14.5); drawHemi("senate",senate,100,5,24); }
+function renderFLegend(){
+  document.getElementById("flegend").innerHTML=`<span class="glab">Filter by faction <i>(click to select, several allowed; the code is shown on each seat)</i></span><div class="fpills">`+FPRIO.map(k=>{const n=M.filter(m=>(m.f||[]).includes(k)).length;
+    return `<button class="gpill" data-fl="${k}" aria-pressed="${filterFactions.has(k)}" ${n?"":"disabled"}><span class="ck">${filterFactions.has(k)?"✓":""}</span><b>${FCODE[k]}</b> ${FACTIONS[k].name} <i>${n}</i></button>`;}).join("")
+    +(filterFactions.size?`<button class="gpill clrf" data-clr="1">Clear ✕</button>`:"")+`</div>`;
+}
+document.getElementById("flegend").addEventListener("click",e=>{const b=e.target.closest(".gpill"); if(!b||b.disabled) return;
+  if(b.dataset.clr) filterFactions.clear(); else toggleFaction(b.dataset.fl); refreshFactions();});
+document.getElementById("fLabels").addEventListener("change",e=>document.querySelectorAll(".hemi").forEach(s=>s.classList.toggle("nolabels",!e.target.checked)));
+drawAll();
+function balance(list,total){ const c=p=>list.filter(m=>m.party===p).length; const d=c("D")+c("I"), r=c("R"), tbd=list.filter(m=>m.status==="tbd").length;
+  const nw=list.filter(m=>m.status==="new"||m.status==="former").length, maj=Math.floor(total/2)+1;
+  const ctl=d>=maj?"Democratic majority":r>=maj?"Republican majority":"No majority yet";
+  return `D ${c("D")}${c("I")?` + I ${c("I")}`:""} · R ${r}${tbd?` · ${tbd} undecided`:""}${total-list.length?` · ${total-list.length} vacant`:""}${congress==="120"?` · ${nw} new`:""} · ${ctl}`; }
+function renderSubs(){ document.getElementById("houseSub").textContent=balance(house,435); document.getElementById("senSub").textContent=balance(senate,100); }
+renderSubs();
+async function setCongress(c){
+  if(c===congress) return;
+  if(c==="120"&&!M120){ try{ M120=(await (await fetch("data120.json")).json()).members; }catch(e){ alert("Could not load the 120th Congress data."); return; } }
+  congress=c; closeDrawer(); filterBucket=null; filterState=null; setRoster(c==="120"?M120:M119);
+  document.querySelectorAll("#cseg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.cong===c));
+  document.getElementById("c120Note").hidden=c!=="120";
+  document.getElementById("h1").textContent=c==="120"?"Where the next Congress stands on Ukraine":"Where Congress stands on Ukraine";
+  fillBucketSelect(); drawAll(); renderSubs(); renderFLegend(); paint(); renderTiles(); renderFactions(); renderTable(true);
+  try{ history.replaceState(null,"",c==="120"?"?congress=120":location.pathname); }catch(e){}
+}
+document.querySelectorAll("#cseg button").forEach(b=>b.onclick=()=>setCongress(b.dataset.cong));
+
+function supportCount(list){return list.filter(m=>m.score!=null&&m.score>=.1).length}
+function paint(){
+  document.querySelectorAll(".hemi circle[data-id]").forEach(c=>{
+    const m=byId[c.dataset.id]; c.setAttribute("fill",color(m));
+    const hit=passes(m);
+    c.classList.toggle("hit",hit); c.classList.toggle("sel",selected===m.id);
+  });
+  document.querySelectorAll(".hemi text.fl").forEach(t=>t.classList.toggle("hit",passes(byId[t.dataset.id])));
+  const anyF=!!(filterBucket||filterState||filterFactions.size);
+  document.querySelectorAll(".hemi").forEach(s=>s.classList.toggle("dim",anyF));
+  [["house",house],["senate",senate]].forEach(([id,list])=>{
+    const sub=list.filter(passes);
+    const N=document.getElementById(id+"N"), L=document.getElementById(id+"L");
+    if(anyF){N.textContent=sub.length; L.textContent=filterFactions.size?[...filterFactions].map(k=>FACTIONS[k].short).join(" + "):filterState?(STATE_NAMES[filterState]||filterState):(cats().find(b=>b.k===filterBucket)||{}).name||"";}
+    else if(colorBy==="tu"){N.textContent=list.filter(m=>m.tu).length; L.textContent="rated by Track Ukraine";}
+    else{N.textContent=supportCount(list); L.textContent="lean supportive";}
+  });
+  statsBlock("houseStats",house.filter(exceptBucket),house.length); statsBlock("senStats",senate.filter(exceptBucket),senate.length);
+  document.querySelectorAll("#colseg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.color===colorBy));
+}
+function statsBlock(id,list,all){
+  const el=document.getElementById(id);
+  const cap=list.length!==all?`<div class="statcap">Ratings of the ${list.length} selected ${list.length===1?"member":"members"}</div>`:"";
+  const cnt=cats().map(b=>({b,n:list.filter(m=>catOf(m).k===b.k).length}));
+  const bar=cnt.filter(c=>c.n).map(c=>`<i style="width:${c.n/Math.max(1,list.length)*100}%;background:var(${c.b.v})" title="${c.b.name}: ${c.n}"></i>`).join("");
+  const tal=cnt.filter(c=>c.n||!["nw","tbd"].includes(c.b.k)).map(c=>`<button data-b="${c.b.k}" aria-pressed="${filterBucket===c.b.k}"><span class="sw" style="background:var(${c.b.v})"></span>${c.b.name}<b>${c.n}</b></button>`).join("");
+  const parties=["D","R","I"].map(p=>{ const pl=list.filter(m=>m.party===p); if(!pl.length) return "";
+    const pb=cats().map(b=>({b,n:pl.filter(m=>catOf(m).k===b.k).length})).filter(c=>c.n)
+      .map(c=>`<i style="width:${c.n/pl.length*100}%;background:var(${c.b.v})" title="${c.b.name}: ${c.n}"></i>`).join("");
+    return `<div class="row"><span class="pp ${p}">${p}</span><div class="bar">${pb}</div><span>${pl.length}</span></div>`; }).join("");
+  el.innerHTML=`${cap}<div class="bar">${bar}</div><div class="tally">${tal}</div><div class="partysplit">${parties}</div>`;
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest(".tally button");
+  if(b){ filterBucket=filterBucket===b.dataset.b?null:b.dataset.b; document.getElementById("fB").value=filterBucket||""; paint(); renderTable(true); }
+});
+function fillBucketSelect(){ fB.innerHTML=`<option value="">${colorBy==="tu"?"All Track Ukraine verdicts":"All ratings"}</option>`+cats().map(b=>`<option value="${b.k}">${b.name}</option>`).join(""); fB.value=filterBucket||""; }
+document.querySelectorAll("#colseg button").forEach(b=>b.onclick=()=>{
+  const was=colorBy; colorBy=b.dataset.color;
+  if((was==="tu")!==(colorBy==="tu")){ filterBucket=null; drawAll(); fillBucketSelect(); }
+  document.getElementById("tuNote").hidden=colorBy!=="tu";
+  paint(); renderFactions(); renderTable(true);});
+
+// tooltip
+const tip=document.getElementById("tip");
+function showTip(m,x,y){ tip.innerHTML=`<b>${esc(m.name)}</b> <span class="pp ${m.party}">${m.party}</span><br>${esc(seatName(m))}<br>${esc(m.label)} · ${fmt(m.score)}`;
+  tip.style.opacity=1; const w=tip.offsetWidth,h=tip.offsetHeight;
+  tip.style.left=Math.min(innerWidth-w-8,Math.max(8,x+14))+"px"; tip.style.top=(y-h-12<8?y+18:y-h-12)+"px"; }
+document.querySelectorAll(".hemi").forEach(svg=>{
+  svg.addEventListener("mousemove",e=>{const c=e.target.closest("circle[data-id]"); if(c) showTip(byId[c.dataset.id],e.clientX,e.clientY); else tip.style.opacity=0;});
+  svg.addEventListener("mouseleave",()=>tip.style.opacity=0);
+  svg.addEventListener("click",e=>{const c=e.target.closest("circle[data-id]"); if(c){tip.style.opacity=0; openMember(c.dataset.id);}});
+});
+
+// ---------- state tiles ----------
+function tileColor(avg){ return avg==null?css("--none"):css(bucket(avg).v); }
+function renderTiles(){
+  const el=document.getElementById("tiles"); let h="";
+  const cells={};
+  for(const [st,[c,r]] of Object.entries(GRID)){
+    const ms=M.filter(m=>m.state===st&&m.score!=null);
+    const avg=ms.length?ms.reduce((a,m)=>a+m.score,0)/ms.length:null;
+    cells[r*12+c]=`<div class="tile${filterState===st?" sel":""}" data-st="${st}" style="background:${tileColor(avg)}" title="${STATE_NAMES[st]}: ${avg==null?"no data":fmt(avg)}">${st}<small>${avg==null?"":fmt(avg)}</small></div>`;
+  }
+  for(let i=0;i<96;i++) h+=cells[i]||"<div></div>";
+  el.innerHTML=h;
+}
+document.getElementById("tiles").addEventListener("click",e=>{const t=e.target.closest(".tile"); if(!t) return;
+  filterState=filterState===t.dataset.st?null:t.dataset.st; renderTiles(); paint(); renderTable(true);});
+document.getElementById("tiles").addEventListener("mousemove",e=>{const t=e.target.closest(".tile"); if(!t){tip.style.opacity=0;return;}
+  const st=t.dataset.st, ms=M.filter(m=>m.state===st); const sup=ms.filter(m=>m.score!=null&&m.score>=.1).length, opp=ms.filter(m=>m.score!=null&&m.score<=-.1).length;
+  tip.innerHTML=`<b>${STATE_NAMES[st]}</b><br>${ms.length} members · ${sup} supportive · ${opp} opposed`; tip.style.opacity=1;
+  tip.style.left=Math.min(innerWidth-tip.offsetWidth-8,e.clientX+14)+"px"; tip.style.top=(e.clientY-tip.offsetHeight-12)+"px";});
+document.getElementById("tiles").addEventListener("mouseleave",()=>tip.style.opacity=0);
+
+// ---------- table ----------
+const fB=document.getElementById("fB"); fillBucketSelect();
+let sortK="score", sortDir=-1, limit=60;
+function filtered(){
+  const q=document.getElementById("q").value.trim().toLowerCase(), ch=document.getElementById("fCh").value, p=document.getElementById("fP").value;
+  return M.filter(m=>(!ch||m.chamber===ch)&&(!p||m.party===p)&&passes(m)
+    &&(!q||m.name.toLowerCase().includes(q)||m.state.toLowerCase()===q||(STATE_NAMES[m.state]||"").toLowerCase().includes(q)));
+}
+function renderTable(reset){
+  if(reset) limit=60;
+  const list=filtered().sort((a,b)=>{let x=a[sortK],y=b[sortK];
+    if(sortK==="score"){x=x??-9;y=y??-9;} if(sortK==="name"){x=a.last;y=b.last;}
+    return (x>y?1:x<y?-1:0)*sortDir;});
+  document.getElementById("rows").innerHTML=list.slice(0,limit).map(m=>{const b=rateOf(m);
+    return `<tr data-id="${m.id}"><td><div class="who">${m.photo?`<img loading="lazy" src="${esc(m.photo)}" alt="">`:`<span class="ph"></span>`}<div><b>${esc(m.name)}</b> <span class="pp ${m.party}">${m.party}</span>${fBadges(m)}${tuBadge(m)||(m.ig&&m.ig.length?`<span class="igb" title="Has a Track Ukraine Instagram post">POST</span>`:"")}</div></div></td>
+    <td>${m.state}${m.chamber==="House"&&m.district?"-"+m.district:""}</td><td class="hide-sm">${m.chamber}</td>
+    <td><div style="display:flex;align-items:center;gap:10px"><span style="font-weight:900;min-width:42px;font-variant-numeric:tabular-nums">${fmt(m.score)}</span>${m.score==null?"":`<div class="meter" style="flex:1"><i style="left:${(m.score+1)/2*100}%"></i></div>`}</div></td>
+    <td class="hide-sm">${colorBy==="tu"?`<span class="lbl"><span class="sw" style="background:var(${tuOf(m).v})"></span>${esc(tuOf(m).name)}</span>`:`<span class="lbl"><span class="sw" style="background:var(${b.v})"></span>${esc(m.label)}</span>`}</td></tr>`}).join("")
+    || `<tr><td colspan="5" style="color:var(--muted);padding:20px">No members match.</td></tr>`;
+  const shown=Math.min(limit,list.length), left=list.length-shown;
+  document.getElementById("count").textContent=list.length?`Showing ${shown} of ${list.length}`:"";
+  const more=document.getElementById("more"); more.hidden=left<=0; more.textContent=`Show ${Math.min(100,left)} more (${left} left)`;
+  document.getElementById("stateChip").innerHTML=(filterState?`<button class="chip" id="clrSt">${STATE_NAMES[filterState]} ✕</button> `:"")+[...filterFactions].map(k=>`<button class="chip" data-clrf="${k}">${FACTIONS[k].name} ✕</button>`).join(" ");
+  const c=document.getElementById("clrSt"); if(c) c.onclick=()=>{filterState=null; renderTiles(); paint(); renderTable(true);};
+  document.querySelectorAll("[data-clrf]").forEach(b=>b.onclick=()=>{filterFactions.delete(b.dataset.clrf); refreshFactions();});
+}
+document.getElementById("more").onclick=()=>{limit+=100; renderTable();};
+// ---------- factions ----------
+function toggleFaction(k){ filterFactions.has(k)?filterFactions.delete(k):filterFactions.add(k); }
+function refreshFactions(){ renderFLegend(); renderFactions(); paint(); renderTable(true); }
+function renderFactions(){
+  const sides=[["D","Democratic side"],["X","Bipartisan"],["R","Republican side"]];
+  let h="";
+  for(const [side,title] of sides){
+    h+=`<div class="fside">${title}</div>`;
+    for(const [k,f] of Object.entries(FACTIONS)){ if(f.side!==side) continue;
+      const ms=M.filter(m=>(m.f||[]).includes(k)); if(!ms.length) continue;
+      const hs=ms.filter(m=>m.chamber==="House").length, ss=ms.length-hs;
+      const sc=ms.filter(m=>m.score!=null), avg=sc.length?sc.reduce((a,m)=>a+m.score,0)/sc.length:null;
+      const sup=ms.filter(m=>m.score!=null&&m.score>=.1).length, opp=ms.filter(m=>m.score!=null&&m.score<=-.1).length;
+      const bar=cats().map(b=>({b,n:ms.filter(m=>catOf(m).k===b.k).length})).filter(c=>c.n).map(c=>`<i style="width:${c.n/ms.length*100}%;background:var(${c.b.v})" title="${c.b.name}: ${c.n}"></i>`).join("");
+      const tuN=ms.filter(m=>m.tu).length;
+      h+=`<button class="fcard" data-f="${k}" aria-pressed="${filterFactions.has(k)}"><h4>${f.name}<span class="fb ${k==="dsa"?"dsa":f.side}">${f.short}</span></h4>
+        <div class="meta">${f.desc} · ${hs} House${ss?` · ${ss} Senate`:""}</div><div class="bar">${bar}</div>
+        <div class="avg">${colorBy==="tu"?`${tuN} of ${ms.length} have a Track Ukraine card`:`Average <b>${fmt(avg)}</b> · ${sup} supportive · ${opp} opposed`}</div></button>`;
+    }
+  }
+  const el=document.getElementById("factions"); el.innerHTML=h;
+}
+document.getElementById("factions").addEventListener("click",e=>{const b=e.target.closest(".fcard"); if(b){ toggleFaction(b.dataset.f); refreshFactions(); }});
+["q","fCh","fP"].forEach(id=>document.getElementById(id).addEventListener("input",()=>renderTable(true)));
+fB.addEventListener("input",()=>{filterBucket=fB.value||null; paint(); renderTable(true);});
+document.querySelectorAll("th[data-k]").forEach(th=>th.onclick=()=>{const k=th.dataset.k; if(sortK===k) sortDir*=-1; else {sortK=k; sortDir=k==="score"?-1:1;} renderTable();});
+document.getElementById("rows").addEventListener("click",e=>{const tr=e.target.closest("tr[data-id]"); if(tr) openMember(tr.dataset.id);});
+
+// ---------- drawer ----------
+const drawer=document.getElementById("drawer"), scrim=document.getElementById("scrim");
+function closeDrawer(){drawer.classList.remove("open"); scrim.classList.remove("on"); drawer.setAttribute("aria-hidden","true"); selected=null; paint(); if(location.hash) history.replaceState(null,"",location.pathname+location.search);}
+scrim.onclick=closeDrawer; document.addEventListener("keydown",e=>{if(e.key==="Escape") closeDrawer();});
+function openMember(id){
+  const m=byId[id]; if(!m) return; selected=id; paint();
+  const b=rateOf(m);
+  const votes=m.votes.map(([i,val,cast])=>({v:V[i],val,cast})).filter(x=>x.v);
+  const castName={A:"Yes",N:"No",P:"Present"};
+  const dot=val=>`<span class="dot" style="background:${val>0?css("--b2"):val<0?css("--bm2"):css("--none")}"></span>`;
+  const link=(u,t)=>u?`<a href="${esc(u)}" target="_blank" rel="noopener">${t}</a>`:"";
+  const vHtml=votes.map(({v,val,cast})=>`<li>${dot(val)}
+    <span><b>${esc(v.label)}</b><br><span class="d">Voted <b>${castName[cast]||"Not voting"}</b> · ${val>0?"pro-Ukraine":val<0?"anti-Ukraine":"no position"} · weight ${v.weight}${v.kind&&v.kind!=="unknown"?" · "+esc(v.kind.replace(/-/g," ")):""}</span>
+    <span class="src">${link(v.rc,`Official roll call #${v.rcNo} ↗`)}${link(v.url,"Bill on congress.gov ↗")}</span>
+    ${v.fix?`<span class="fix">⚠ ${esc(v.fix)}</span>`:v.why&&v.why!=="manual override"?`<span class="why">Why Track Ukraine counts it: ${esc(v.why)}</span>`:""}</span>
+    <span class="d">${v.date}</span></li>`).join("");
+  const sp=m.sponsor.map(([k,rel,val])=>{const bi=(data.bills||{})[k]||{}; return `<li>${dot(val)}<span><b>${esc(bi.label||k)}</b><br><span class="d">${rel==="s"?"Sponsor":"Cosponsor"} · weight ${rel==="s"?"1 × 1.5":"0.75 × 1.5"}</span><span class="src">${link(bi.url,"Bill on congress.gov ↗")}</span></span><span></span></li>`}).join("");
+  const notes=(m.comBills||[]).flatMap(k=>((data.comments||{})[k]||[]).map(c=>({k,c}))).map(({k,c})=>`<li>${dot(c.dir)}<span><b>${esc(((data.bills||{})[k]||{}).label||k)}</b><br><span class="d">“${esc(c.text.trim())}” · ${c.dir>0?"pro":"anti"} · weight ${c.w}</span></span><span class="d">${c.date}</span></li>`).join("");
+  const pro=votes.filter(x=>x.val>0).length, anti=votes.filter(x=>x.val<0).length, skip=votes.length-pro-anti;
+  // score math (same formula as Track Ukraine's tracker)
+  let wp=0,wa=0;
+  votes.forEach(({v,val})=>{if(val>0)wp+=v.weight; else if(val<0)wa+=v.weight;});
+  m.sponsor.forEach(([k,rel,val])=>{const w=1.5*(rel==="s"?1:.75); if(val>0)wp+=w; else if(val<0)wa+=w;});
+  (m.comBills||[]).forEach(k=>((data.comments||{})[k]||[]).forEach(c=>{if(c.w>0){if(c.dir>0)wp+=c.w; else if(c.dir<0)wa+=c.w;}}));
+  const math=`<details class="math"><summary>How this score was calculated</summary>
+    <p>Pro-Ukraine weight <b>${wp.toFixed(2)}</b> − anti-Ukraine weight <b>${wa.toFixed(2)}</b>, divided by total <b>${(wp+wa).toFixed(2)}</b> = <b>${m.raw==null?"—":fmt(m.raw)}</b>.</p>
+    ${m.tier!=="full"&&m.score!=null&&m.prior!=null?`<p>Only ${m.n} actions, so the score is blended toward the party average (${fmt(m.prior)}): weight on own record = ${m.n}/(${m.n}+4) → final <b>${fmt(m.score)}</b>.</p>`:""}
+    ${m.score==null?`<p>Fewer than 2 scored actions, so no score is shown.</p>`:""}
+    <p>Weights come from Track Ukraine: each vote has an importance weight (0.1–1.25); sponsoring counts ×1.5; "present" and missed votes are ignored. Researcher notes on a bill count for everyone who voted on it.</p></details>`;
+  // Track Ukraine visuals
+  const cards=[];
+  if(m.judgement&&m.judgement.img) cards.push(`<a class="card-img" href="${esc(m.judgement.img)}" target="_blank" rel="noopener"><img src="${esc(m.judgement.img)}" alt="Track Ukraine rating: ${esc(m.judgement.rating)}"><span>Track Ukraine researcher rating: ${esc(m.judgement.rating)}</span></a>`);
+  (m.ig||[]).forEach(p=>cards.push(`<a class="card-img" href="${esc(p.url)}" target="_blank" rel="noopener"><img src="${esc(p.img)}" alt="" loading="lazy" onerror="this.remove()"><span>${esc(p.caption.slice(0,160))}${p.caption.length>160?"…":""}<br><b>Open the post on Instagram ↗</b></span></a>`));
+  const igSearch=`https://www.google.com/search?q=${encodeURIComponent(`site:instagram.com trackukraine "${m.first} ${m.last}"`)}`;
+  const tuBlock=`<div class="dsub">Track Ukraine's own material</div>
+    ${cards.length?`<div class="cards">${cards.join("")}</div>`:`<p class="nocard">Track Ukraine's site has no rating card for ${esc(m.first)} ${esc(m.last)} yet, and none of the ${data.igCount||0} @trackukraine posts captured so far mention them.</p>`}
+    <div class="srcbtns">
+      <a class="sbtn" id="tuOpen" href="https://trackukraine.com/pages/search" target="_blank" rel="noopener">Check on trackukraine.com ↗</a>
+      <a class="sbtn" href="${igSearch}" target="_blank" rel="noopener">Find @trackukraine posts ↗</a>
+    </div>
+    <p class="hint" id="tuHint">trackukraine.com has no direct link to a member. This button copies the name, so you can paste it into “Search by name” there.</p>`;
+  document.getElementById("dIn").innerHTML=`<button class="x" aria-label="Close" id="dx">×</button>
+    <div class="dhead">${m.photo?`<img src="${esc(m.photo)}" alt="">`:`<span class="ph"></span>`}<div><h4>${esc(m.name)}</h4><div><span class="pp ${m.party}">${m.party}</span> ${esc(seatName(m))}${m.since?` · since ${m.since}`:""}</div>${m.f&&m.f.length?`<div style="margin-top:6px">${m.f.map(k=>`<a class="fb ${k==="dsa"?"dsa":FACTIONS[k].side}" style="text-decoration:none;margin:0 4px 0 0" href="${esc((data.factionSrc||{})[k]||"#")}" target="_blank" rel="noopener" title="Membership source: Wikipedia">${esc(FACTIONS[k].name)} ↗</a>`).join("")}</div>`:""}</div></div>
+    ${m.tu?`<div class="tunote" style="margin:14px 0 0;border-left-color:var(${tuOf(m).v})"><b>Track Ukraine verdict: ${esc(tuOf(m).name)}</b> (${esc(m.tu)} card on their Instagram)${(m.tu==="red"&&m.score>=.1)||(m.tu==="green"&&m.score<=-.1)?" · differs from the vote-based score below":""}</div>`:""}
+    ${m.status==="new"||m.status==="former"?`<div class="tunote" style="margin:14px 0 0"><b>${m.status==="former"?"Returning former member":"New member"}, takes office January 3, 2027.</b> ${m.status==="former"?"Their earlier terms are not in Track Ukraine's tracker, so there is no score.":"No congressional voting record yet, so there is no score."} ${m.wiki?`<a href="${esc(m.wiki)}" target="_blank" rel="noopener">Wikipedia ↗</a>`:""}</div>`:""}
+    ${m.note?`<div class="tunote" style="margin:14px 0 0">${esc(m.note)}.</div>`:""}
+    <div class="big"><b style="color:${css(rateOf(m).v)}">${esc(m.label)}</b><span>score ${fmt(m.score)}</span></div>
+    ${m.score==null?"":`<div class="meter"><i style="left:${(m.score+1)/2*100}%"></i></div>`}
+    <p style="color:var(--muted);font-size:13px;margin:12px 0 0">${m.n} scored actions · ${pro} pro-Ukraine votes · ${anti} anti-Ukraine · ${skip} not voting/present${m.tier!=="full"&&m.score!=null?" · short record, partly based on party average":""}</p>
+    ${math}
+    ${tuBlock}
+    ${sp?`<div class="dsub">Sponsored bills</div><ul class="vl">${sp}</ul>`:""}
+    <div class="dsub">Key votes (${votes.length})</div>
+    <ul class="vl">${vHtml||'<li><span></span><span style="color:var(--muted)">No tracked votes in this member\'s tenure.</span><span></span></li>'}</ul>
+    ${notes?`<div class="dsub">Track Ukraine researcher notes</div><ul class="vl">${notes}</ul>`:""}
+    <p style="margin-top:18px;font-size:13px">${link(m.web,"Official website ↗")}${m.web?" · ":""}${/^[A-Z]\d{6}$/.test(m.bioguide||m.id)?link(`https://bioguide.congress.gov/search/bio/${m.bioguide||m.id}`,"Congressional biography ↗"):link(m.wiki,"Wikipedia ↗")}</p>`;
+  // A real link opens the page natively (window.open got blocked); the click only copies the name on the side.
+  document.getElementById("tuOpen").addEventListener("click",()=>{const n=m.last;
+    const fallback=()=>{const t=document.createElement("textarea"); t.value=n; t.style.position="fixed"; t.style.opacity="0"; document.body.appendChild(t); t.select(); try{document.execCommand("copy");}catch(e){} t.remove();};
+    try{ navigator.clipboard ? navigator.clipboard.writeText(n).catch(fallback) : fallback(); }catch(e){ fallback(); }
+    document.getElementById("tuHint").textContent=`Copied “${n}”. Paste it into “Search by name” on the page that just opened.`;});
+  document.getElementById("dx").onclick=closeDrawer;
+  drawer.classList.add("open"); scrim.classList.add("on"); drawer.setAttribute("aria-hidden","false"); drawer.scrollTop=0;
+  history.replaceState(null,"",location.pathname+location.search+"#"+id);
+}
+
+renderFLegend(); paint(); renderTiles(); renderFactions(); renderTable(true);
+const startHash=location.hash.slice(1);
+if(new URLSearchParams(location.search).get("congress")==="120") await setCongress("120");
+if(startHash) openMember(startHash);
+addEventListener("hashchange",()=>{const id=location.hash.slice(1); if(id&&id!==selected) openMember(id);});
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{paint();renderTiles();});
+})();
+</script>
+</body>
+</html>

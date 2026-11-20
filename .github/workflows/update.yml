@@ -1,0 +1,62 @@
+name: Update data
+
+on:
+  schedule:
+    - cron: "17 6 * * *"   # every day, 06:17 UTC
+  workflow_dispatch:        # "Run workflow" button for a manual refresh
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency: update-data
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: team_EQtsA129Us9dOHQwj6hJadHJ
+      VERCEL_PROJECT_ID: prj_zwQ5Ex4WZnOoVSGJghtgJiJGHVJE
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pillow
+
+      - name: Rebuild and check data
+        run: sh scripts/update_all.sh
+
+      - name: Save collected cards and data to the repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add site/data.json site/data120.json site/eu.json raw/instagram.json raw/igimg raw/factions.json
+          if git diff --cached --quiet; then echo "No data changes"; else git commit -m "Data update $(date -u +%F)" && git push; fi
+
+      - name: Deploy to Vercel
+        if: env.VERCEL_TOKEN != ''
+        run: npx -y vercel@latest deploy site --prod --yes --token "$VERCEL_TOKEN"
+
+      - name: Warn that the Vercel token is missing
+        if: env.VERCEL_TOKEN == ''
+        run: echo "::warning::VERCEL_TOKEN secret is not set, data was updated in the repo but the site was not redeployed."
+
+      - name: Ask for review of new European Parliament votes
+        if: hashFiles('build/eu_new_votes.json') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY' > body.md
+          import json
+          votes = json.load(open("build/eu_new_votes.json"))
+          print("New Ukraine/Russia votes in the European Parliament were added to MEP scores **automatically**, with a guessed direction and weight 0.5. Please review them.\n")
+          print("For each vote: move it into `votes` (set `dir`, `weight`, `label`, `\"reviewed\": true`) or into `excluded` in `scripts/eu_votes.json`.\n")
+          for v in votes:
+              print(f"- [{v['title']}]({v['url']}) ({v['date']}, {v['for']} for / {v['against']} against), guessed: voting FOR = **{v['guess']}-Ukraine**")
+          PY
+          n=$(gh issue list --label eu-review --state open --json number --jq '.[0].number')
+          gh label create eu-review --color FBCA04 --description "EU votes to review" 2>/dev/null || true
+          if [ -n "$n" ]; then gh issue edit "$n" --body-file body.md; else gh issue create --title "Review new European Parliament votes" --label eu-review --body-file body.md; fi

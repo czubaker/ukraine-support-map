@@ -1,0 +1,7 @@
+{
+  "118-HR-4365": {
+    "note": "Corrected vs Track Ukraine: their note says this bill is scored on the Gaetz amendment (roll call 438) to strip all Ukraine military aid, but their data scores roll calls 501/502 (motion to recommit and party-line final passage of the defense budget) instead. We score roll call 438 as they describe: voting Aye = anti-Ukraine.",
+    "votes": [{"chamber": "House", "congress": 118, "session": 1, "rollCall": 438, "date": "2023-09-27T00:00:00Z", "direction": "anti", "weight": 1, "kind": "amendment",
+               "url": "https://clerk.house.gov/evs/2023/roll438.xml", "action": "On agreeing to Gaetz amendment No. 160 (strip Ukraine military aid): Failed 93 - 339 (Roll no. 438)."}]
+  }
+}

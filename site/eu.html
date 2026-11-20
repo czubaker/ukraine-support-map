@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ukraine Support Map</title>
+<meta name="description" content="Every Member of the European Parliament, colored by their votes on Ukraine.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+:root{--g-GUE_NGL:#8b1a1a;--g-SD:#e3242b;--g-GREEN_EFA:#3fa535;--g-RENEW:#ffcc00;--g-EPP:#3a6fd8;--g-ECR:#1b3a6b;--g-PFE:#4b2c7f;--g-ESN:#5b3a1f;--g-NI:#8a8a8a}
+.ctiles{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;max-width:760px}
+.fbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end;padding-bottom:12px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+.fbar label{display:flex;flex-direction:column;gap:4px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.fbar select{font:inherit;font-size:14px;text-transform:none;letter-spacing:0;font-weight:500;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);min-width:170px;max-width:260px}
+.fbar .clr{font:inherit;font-size:13px;font-weight:700;padding:8px 12px;border-radius:999px;border:0;background:var(--accent);color:#000;cursor:pointer}
+.fbar .flt{flex-direction:row;margin-left:auto;align-items:center;text-transform:none;letter-spacing:0;font-size:13px}
+.flegend{flex-direction:row}
+.flegend span{padding:2px 4px}
+.statcap{font-size:12px;color:var(--muted);text-align:center;margin-top:6px}
+.gpick{flex-basis:100%;display:flex;flex-direction:column;gap:6px}
+.glab{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}.glab i{text-transform:none;letter-spacing:0;font-style:normal;font-weight:500}
+#gpills{display:flex;flex-wrap:wrap;gap:6px}
+.gpill{font:inherit;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.gpill i{font-style:normal;color:var(--muted);font-weight:500}
+.gpill .ck{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--muted);display:inline-flex;align-items:center;justify-content:center;font-size:11px;line-height:1}
+.gpill[aria-pressed="true"]{border-color:var(--fg)}.gpill[aria-pressed="true"] .ck{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.gpill:disabled{opacity:.35;cursor:default} /* toggle pills: no checkbox drawn, selected = filled */ .gpill .ck{display:none!important} .gpill:hover:not(:disabled){border-color:var(--muted)} .gpill[aria-pressed="true"]{background:var(--fg)!important;color:var(--bg)!important;border-color:var(--fg)!important} .gpill[aria-pressed="true"] i{color:inherit;opacity:.7} .gpill[aria-pressed="true"] b{color:inherit!important} .gpill[aria-pressed="true"] .sw{box-shadow:0 0 0 2px var(--bg)} 
+.epgrid{display:grid;grid-template-columns:1fr;gap:20px}
+@media (min-width:1250px){.epgrid{grid-template-columns:minmax(0,2.3fr) minmax(320px,1fr);align-items:start}}
+.selpanel{background:var(--bg);border-radius:14px;padding:14px;font-size:13px}
+.seltitle{font-weight:900;font-size:17px}
+.selbig{margin-top:4px;color:var(--muted)} .selbig b{color:var(--fg);font-size:16px}
+.selmeta{color:var(--muted);font-size:12px;margin:2px 0 8px}
+.selrow{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:12px minmax(0,1fr) 28px 70px 40px;gap:8px;align-items:center;width:100%;padding:5px 4px;border-radius:6px}
+.selrow:hover{background:var(--surface)}
+.selrow[aria-pressed="true"]{background:var(--fg);color:var(--bg)}.selrow[aria-pressed="true"] .n{color:inherit;opacity:.7}
+.selrow .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.selrow .n{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.selrow .bar{margin:0;height:8px}
+.selrow .av{text-align:right;font-weight:900;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="flag" aria-hidden="true"></div>
+  <div class="brand">Ukraine Support Map</div>
+  <nav class="nav" aria-label="Region"><a href="./">US Congress</a><a href="eu.html" aria-current="page">European Parliament</a></nav>
+  <div class="spacer"></div>
+  <div class="seg" role="group" aria-label="Color seats by">
+    <button data-color="rating" aria-pressed="true">Rating</button>
+    <button data-color="group" aria-pressed="false">Group</button>
+  </div>
+</div></header>
+
+<main class="wrap">
+  <h1>Where the European Parliament stands on Ukraine</h1>
+  <p class="lede">All <b id="nMeps">720</b> MEPs of the 10th Parliament (2024–2029), colored by how they voted on <b id="nVotes"></b> roll-call votes about Ukraine and Russia: aid and loans, sanctions, Russian gas, trade with Ukraine, and support resolutions. Scores run from <b>−1 (votes against Ukraine)</b> to <b>+1 (votes for)</b>. Click a seat, country, party or name to see every vote.</p>
+
+  <div class="card">
+    <div class="fbar">
+      <label>Country <select id="fC" aria-label="Country"><option value="">All 27 countries</option></select></label>
+      <label>Party <select id="fP" aria-label="National party"><option value="">All parties</option></select></label>
+      <label>Rating <select id="fB" aria-label="Rating"><option value="">All ratings</option></select></label>
+      <button class="clr" id="clrAll" hidden>Clear filters ✕</button>
+      <div class="gpick"><span class="glab">Groups <i>(click to select, several allowed)</i></span><div id="gpills" role="group" aria-label="Political groups"></div></div>
+      <label class="flt"><input type="checkbox" id="fLabels" checked> Group labels</label>
+    </div>
+    <div class="epgrid">
+      <div><h2>European Parliament <span id="epSub"></span></h2>
+        <svg class="hemi" id="ep" viewBox="0 0 1200 625"></svg><div class="flegend" id="flegend"></div><div id="epStats"></div></div>
+      <aside class="selpanel" id="selpanel"></aside>
+    </div>
+  </div>
+
+
+  <section class="blk">
+    <h3>By national party</h3>
+    <p id="partyNote">Parties with at least 3 MEPs, most opposed first. Click a row to filter.</p>
+    <div class="tablewrap"><table class="ptable" id="parties"></table></div>
+  </section>
+
+  <section class="blk">
+    <h3>By country</h3>
+    <p>Average score of each country's MEPs. Click a country to filter.</p>
+    <div class="ctiles" id="tiles"></div>
+  </section>
+
+  <section class="blk">
+    <h3>All MEPs</h3>
+    <div class="tools">
+      <input id="q" type="search" placeholder="Search name, party or country…" aria-label="Search MEPs">
+      <span id="chips"></span>
+    </div>
+    <div class="tablewrap"><table>
+      <thead><tr><th data-k="name">MEP</th><th data-k="country">Country</th><th data-k="party" class="hide-sm">Party</th><th data-k="score">Score</th><th data-k="label" class="hide-sm">Rating</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <p class="count" id="count"></p>
+    <button class="more" id="more" hidden>Show more</button>
+  </section>
+
+  <section class="blk">
+    <h3>Sources</h3>
+    <p>Every number links back to the original record.</p>
+    <div class="sources">
+      <div><b>Votes</b>Roll-call results from <a href="https://howtheyvote.eu" target="_blank" rel="noopener">HowTheyVote.eu</a> open data (based on the Parliament's official minutes), data as of <span id="asof"></span>. Each vote in an MEP's card links to its HowTheyVote page and the officially adopted text.</div>
+      <div><b>Which votes count</b>Final votes this term about Ukraine and Russia, chosen by this site (the list is in every MEP's card). “Proposals to reject” Ukraine aid or the Russian gas ban count in reverse: voting FOR them is anti-Ukraine.</div>
+      <div><b>Score</b>Same formula as the US page: weighted share of pro- vs anti-Ukraine votes (weights 0.25–1.25 by importance). Abstentions and absences are not counted; MEPs with a short record are pulled toward their group's average.</div>
+      <div><b>MEPs</b>Membership, groups and national parties from HowTheyVote and the <a href="https://www.europarl.europa.eu/meps/en/home" target="_blank" rel="noopener">European Parliament's MEP directory</a>.</div>
+    </div>
+  </section>
+
+  <footer>
+    Only the European Parliament is shown: it is the one EU institution whose members are directly elected. The Council and European Council are made up of national governments, and the Commission is appointed.<br>
+    Unofficial visualization. Not affiliated with Track Ukraine, HowTheyVote.eu or the European Parliament.
+  </footer>
+</main>
+
+<div id="tip"></div>
+<div class="scrim" id="scrim"></div>
+<aside id="drawer" aria-hidden="true"><div class="in" id="dIn"></div></aside>
+
+<script>
+(async function(){
+const BUCKETS=[
+  {k:"s3",name:"Strong support",v:"--b3"},{k:"s2",name:"Support",v:"--b2"},{k:"s1",name:"Some support",v:"--b1"},
+  {k:"s0",name:"Mixed",v:"--b0"},{k:"o1",name:"Some opposition",v:"--bm1"},{k:"o2",name:"Opposed",v:"--bm2"},
+  {k:"o3",name:"Strong opposition",v:"--bm3"},{k:"na",name:"No record",v:"--none"}];
+function bucket(s){ if(s==null) return BUCKETS[7];
+  if(s>=.75)return BUCKETS[0]; if(s>=.35)return BUCKETS[1]; if(s>=.1)return BUCKETS[2];
+  if(s>-.1)return BUCKETS[3]; if(s>-.35)return BUCKETS[4]; if(s>-.75)return BUCKETS[5]; return BUCKETS[6]; }
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=s=>s==null?"—":(s>0?"+":"")+s.toFixed(2);
+const flag=iso=>iso&&iso.length===2?String.fromCodePoint(...[...iso.toUpperCase()].map(c=>127397+c.charCodeAt(0))):"";
+// EU-27 tile grid [col,row]
+const GRID={FIN:[6,0],SWE:[5,0],EST:[7,1],IRL:[0,2],DNK:[4,1],LVA:[7,2],LTU:[7,3],NLD:[3,2],DEU:[4,2],POL:[6,3],BEL:[3,3],LUX:[3,4],CZE:[5,3],SVK:[6,4],FRA:[2,4],AUT:[4,4],HUN:[5,4],ROU:[6,5],PRT:[0,5],ESP:[1,5],ITA:[3,5],SVN:[4,5],HRV:[5,5],BGR:[6,6],MLT:[3,7],GRC:[5,7],CYP:[7,7]};
+
+let data;
+try{ data=await (await fetch("eu.json")).json(); }catch(e){ document.querySelector("main").insertAdjacentHTML("afterbegin","<p>Could not load data.</p>"); return; }
+const M=data.members, V=data.votes, G=data.groups, C=data.countries, byId=Object.fromEntries(M.map(m=>[m.id,m]));
+const GORDER=Object.keys(G);
+document.getElementById("nMeps").textContent=M.length;
+document.getElementById("nVotes").textContent=V.length;
+document.getElementById("asof").textContent=data.dataAsOf?new Date(data.dataAsOf).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"}):"—";
+document.getElementById("epSub").textContent=`${M.length} MEPs`;
+
+let colorBy="rating", fBucket=null, fCountry=null, fGroups=new Set(), fParty=null, selected=null;
+const passes=m=>(!fBucket||bucket(m.score).k===fBucket)&&(!fCountry||m.country===fCountry)&&(!fGroups.size||fGroups.has(m.group))&&(!fParty||m.country+"|"+m.party===fParty);
+const color=m=>colorBy==="group"?css("--g-"+m.group):css(bucket(m.score).v);
+const cname=c=>(C[c]||{}).name||c;
+
+// ---------- hemicycle ----------
+function seatPositions(total, rows, r0, r1, cx, cy){
+  const radii=[...Array(rows)].map((_,i)=>r0+(r1-r0)*i/(rows-1)), sumR=radii.reduce((a,b)=>a+b,0);
+  let counts=radii.map(r=>Math.round(total*r/sumR)); counts[rows-1]+=total-counts.reduce((a,b)=>a+b,0);
+  const pts=[];
+  radii.forEach((r,i)=>{ const n=counts[i]; for(let j=0;j<n;j++){ const a=Math.PI*(1-(n===1?.5:j/(n-1))); pts.push({x:cx+r*Math.cos(a),y:cy-r*Math.sin(a),a}); } });
+  pts.sort((p,q)=>q.a-p.a || Math.hypot(p.x-cx,p.y-cy)-Math.hypot(q.x-cx,q.y-cy));
+  return pts;
+}
+function drawHemi(){
+  const svg=document.getElementById("ep"), rDot=11.5;
+  const pts=seatPositions(M.length, 15, 220, 585, 600, 600);
+  const ms=M.slice().sort((a,b)=>GORDER.indexOf(a.group)-GORDER.indexOf(b.group)||(b.score??-9)-(a.score??-9));
+  let h="", t="";
+  pts.forEach((p,i)=>{ const m=ms[i]; if(!m) return; const x=p.x.toFixed(1), y=p.y.toFixed(1);
+    h+=`<circle cx="${x}" cy="${y}" r="${rDot}" data-id="${m.id}"></circle>`;
+    t+=`<text class="fl" data-id="${m.id}" x="${x}" y="${(p.y+rDot*.34).toFixed(1)}" text-anchor="middle" font-size="${(rDot*.9).toFixed(1)}">${(G[m.group]||{}).code||""}</text>`; });
+  svg.innerHTML=h+t+`<text class="center-n" x="600" y="545" text-anchor="middle" id="epN"></text><text class="center-l" x="600" y="585" text-anchor="middle" id="epL"></text>`;
+}
+drawHemi();
+document.getElementById("flegend").innerHTML=GORDER.map(k=>`<span><b>${G[k].code}</b>${esc(G[k].name)}</span>`).join("");
+const groupsLabel=()=>[...fGroups].map(k=>G[k].code).join(" + ");
+const exceptBucket=m=>(!fCountry||m.country===fCountry)&&(!fGroups.size||fGroups.has(m.group))&&(!fParty||m.country+"|"+m.party===fParty);
+document.getElementById("fLabels").addEventListener("change",e=>document.getElementById("ep").classList.toggle("nolabels",!e.target.checked));
+
+function paint(){
+  document.querySelectorAll("#ep circle[data-id]").forEach(c=>{const m=byId[c.dataset.id]; c.setAttribute("fill",color(m)); c.classList.toggle("hit",passes(m)); c.classList.toggle("sel",selected===m.id);});
+  document.querySelectorAll("#ep text.fl").forEach(t=>t.classList.toggle("hit",passes(byId[t.dataset.id])));
+  const anyF=!!(fBucket||fCountry||fGroups.size||fParty);
+  document.getElementById("ep").classList.toggle("dim",anyF);
+  const N=document.getElementById("epN"), L=document.getElementById("epL");
+  if(anyF){ N.textContent=M.filter(passes).length; L.textContent=[fGroups.size&&groupsLabel(), fParty&&fParty.split("|")[1], fCountry&&cname(fCountry), fBucket&&BUCKETS.find(b=>b.k===fBucket).name].filter(Boolean).join(" · "); }
+  else { N.textContent=M.filter(m=>m.score!=null&&m.score>=.1).length; L.textContent="lean supportive"; }
+  const pool=M.filter(exceptBucket);
+  const cnt=BUCKETS.map(b=>({b,n:pool.filter(m=>bucket(m.score).k===b.k).length}));
+  const bar=cnt.filter(c=>c.n).map(c=>`<i style="width:${c.n/Math.max(1,pool.length)*100}%;background:var(${c.b.v})" title="${c.b.name}: ${c.n}"></i>`).join("");
+  const tal=cnt.map(c=>`<button data-b="${c.b.k}" aria-pressed="${fBucket===c.b.k}"><span class="sw" style="background:var(${c.b.v})"></span>${c.b.name}<b>${c.n}</b></button>`).join("");
+  document.getElementById("epStats").innerHTML=`<div class="statcap">${anyF&&(fCountry||fGroups.size||fParty)?`Ratings of the ${pool.length} selected MEPs`:"Ratings of all MEPs"}</div><div class="bar">${bar}</div><div class="tally">${tal}</div>`;
+  document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.color===colorBy));
+}
+document.addEventListener("click",e=>{const b=e.target.closest(".tally button"); if(b){ fBucket=fBucket===b.dataset.b?null:b.dataset.b; fB.value=fBucket||""; refresh(); }});
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{colorBy=b.dataset.color; paint();});
+const tip=document.getElementById("tip");
+function showTip(html,x,y){ tip.innerHTML=html; tip.style.opacity=1; const w=tip.offsetWidth,h=tip.offsetHeight;
+  tip.style.left=Math.min(innerWidth-w-8,Math.max(8,x+14))+"px"; tip.style.top=(y-h-12<8?y+18:y-h-12)+"px"; }
+const svg=document.getElementById("ep");
+svg.addEventListener("mousemove",e=>{const c=e.target.closest("circle[data-id]"); if(!c){tip.style.opacity=0;return;} const m=byId[c.dataset.id];
+  showTip(`<b>${esc(m.name)}</b> ${flag((C[m.country]||{}).iso2)}<br>${esc(G[m.group].name)} · ${esc(m.party)}<br>${esc(m.label)} · ${fmt(m.score)}`,e.clientX,e.clientY);});
+svg.addEventListener("mouseleave",()=>tip.style.opacity=0);
+svg.addEventListener("click",e=>{const c=e.target.closest("circle[data-id]"); if(c){tip.style.opacity=0; openMember(c.dataset.id);}});
+
+// ---------- filter bar ----------
+const fC=document.getElementById("fC"), fP=document.getElementById("fP");
+fC.innerHTML+=Object.keys(GRID).map(c=>[c,cname(c)]).sort((a,b)=>a[1].localeCompare(b[1])).map(([c,n])=>`<option value="${c}">${flag((C[c]||{}).iso2)} ${esc(n)} (${M.filter(m=>m.country===c).length})</option>`).join("");
+fC.addEventListener("input",()=>{ fCountry=fC.value||null; if(fParty&&fCountry&&!fParty.startsWith(fCountry+"|")) fParty=null; refresh(); });
+fP.addEventListener("input",()=>{ fParty=fP.value||null; refresh(); });
+document.getElementById("clrAll").onclick=()=>{ fCountry=fParty=fBucket=null; fGroups.clear(); refresh(); };
+function syncBar(){
+  fC.value=fCountry||""; fB.value=fBucket||"";
+  const gbase=M.filter(m=>(!fCountry||m.country===fCountry)&&(!fParty||m.country+"|"+m.party===fParty)&&(!fBucket||bucket(m.score).k===fBucket));
+  document.getElementById("gpills").innerHTML=GORDER.map(k=>{const n=gbase.filter(m=>m.group===k).length;
+    return `<button class="gpill" data-g="${k}" aria-pressed="${fGroups.has(k)}" ${n?"":"disabled"} title="${esc(G[k].name)}"><span class="ck">${fGroups.has(k)?"✓":""}</span><span class="sw" style="background:var(--g-${k})"></span>${G[k].code} <i>${n}</i></button>`;}).join("");
+  // party list follows the chosen country (and group)
+  const by={}; M.filter(m=>m.party&&(!fCountry||m.country===fCountry)&&(!fGroups.size||fGroups.has(m.group))).forEach(m=>{const k=m.country+"|"+m.party; by[k]=(by[k]||0)+1;});
+  const opts=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([k,n])=>{const [c,p]=k.split("|"); return `<option value="${esc(k)}">${fCountry?"":flag((C[c]||{}).iso2)+" "}${esc(p)} (${n})</option>`;});
+  if(fParty&&!by[fParty]) opts.unshift(`<option value="${esc(fParty)}">${esc(fParty.split("|")[1])}</option>`);
+  fP.innerHTML=`<option value="">${fCountry?"All parties in "+esc(cname(fCountry)):"All parties"}</option>`+opts.join(""); fP.value=fParty||"";
+  document.getElementById("clrAll").hidden=!(fCountry||fParty||fGroups.size||fBucket);
+}
+// selection breakdown next to the map
+function renderSel(){
+  const sel=M.filter(passes), title=[fCountry&&`${flag((C[fCountry]||{}).iso2)} ${cname(fCountry)}`, fGroups.size&&[...fGroups].map(k=>G[k].name).join(" + "), fParty&&fParty.split("|")[1], fBucket&&BUCKETS.find(b=>b.k===fBucket).name].filter(Boolean).join(" · ")||"Whole Parliament";
+  // list every group/party available under the other filters, so several can be ticked
+  const gPool=M.filter(m=>(!fCountry||m.country===fCountry)&&(!fParty||m.country+"|"+m.party===fParty)&&(!fBucket||bucket(m.score).k===fBucket));
+  const pPool=M.filter(m=>(!fCountry||m.country===fCountry)&&(!fGroups.size||fGroups.has(m.group))&&(!fBucket||bucket(m.score).k===fBucket));
+  const groupsHere=GORDER.map(k=>({k,ms:gPool.filter(m=>m.group===k)})).filter(x=>x.ms.length);
+  const a=avgOf(sel), sup=sel.filter(m=>m.score!=null&&m.score>=.1).length, opp=sel.filter(m=>m.score!=null&&m.score<=-.1).length;
+  document.getElementById("selpanel").innerHTML=`<div class="seltitle">${esc(title)}</div>
+    <div class="selbig"><b>${sel.length}</b> MEPs · average <b>${fmt(a)}</b></div>
+    <div class="selmeta">${sup} lean supportive · ${opp} lean opposed</div>
+    <div class="bar">${sel.length?stackBar(sel):""}</div>
+    <div class="dsub" style="margin-top:14px">By group <span style="text-transform:none;letter-spacing:0;font-weight:500">· click to select, several allowed</span></div>
+    ${groupsHere.map(({k,ms})=>`<button class="selrow" data-g="${k}" aria-pressed="${fGroups.has(k)}"><span class="sw" style="background:var(--g-${k})"></span><span class="nm">${esc(G[k].name)}</span><span class="n">${ms.length}</span><span class="bar">${stackBar(ms)}</span><span class="av">${fmt(avgOf(ms))}</span></button>`).join("")||'<p class="selmeta">No MEPs match.</p>'}
+    ${fCountry?`<div class="dsub" style="margin-top:14px">By party in ${esc(cname(fCountry))}</div>${(()=>{const by={}; pPool.forEach(m=>{(by[m.party||"—"]=by[m.party||"—"]||[]).push(m)}); return Object.entries(by).sort((a,b)=>b[1].length-a[1].length).map(([p,ms])=>`<button class="selrow" data-p="${esc(fCountry+"|"+p)}" aria-pressed="${fParty===fCountry+"|"+p}"><span class="sw" style="background:var(--g-${ms[0].group})"></span><span class="nm">${esc(p)}</span><span class="n">${ms.length}</span><span class="bar">${stackBar(ms)}</span><span class="av">${fmt(avgOf(ms))}</span></button>`).join("");})()}`:`<p class="selmeta" style="margin-top:12px">Pick a country to see its parties here.</p>`}`;
+}
+document.getElementById("selpanel").addEventListener("click",e=>{const b=e.target.closest(".selrow"); if(!b) return;
+  if(b.dataset.g) toggleGroup(b.dataset.g); if(b.dataset.p) fParty=fParty===b.dataset.p?null:b.dataset.p; refresh();});
+
+// ---------- groups ----------
+function toggleGroup(k){ fGroups.has(k)?fGroups.delete(k):fGroups.add(k); }
+document.getElementById("gpills").addEventListener("click",e=>{const b=e.target.closest(".gpill"); if(b&&!b.disabled){ toggleGroup(b.dataset.g); refresh(); }});
+function stackBar(ms){ return BUCKETS.map(b=>({b,n:ms.filter(m=>bucket(m.score).k===b.k).length})).filter(c=>c.n).map(c=>`<i style="width:${c.n/ms.length*100}%;background:var(${c.b.v})" title="${c.b.name}: ${c.n}"></i>`).join(""); }
+function avgOf(ms){ const s=ms.filter(m=>m.score!=null); return s.length?s.reduce((a,m)=>a+m.score,0)/s.length:null; }
+
+// ---------- national parties ----------
+function renderParties(){
+  const by={}; M.forEach(m=>{ if(!m.party||(fCountry&&m.country!==fCountry)) return; (by[m.country+"|"+m.party]=by[m.country+"|"+m.party]||[]).push(m); });
+  document.getElementById("partyNote").textContent=fCountry?`All parties from ${cname(fCountry)}, most opposed first. Click a row to filter.`:"Parties with at least 3 MEPs, most opposed first. Click a row to filter.";
+  const rows=Object.entries(by).filter(([,ms])=>fCountry||ms.length>=3).map(([k,ms])=>({k,ms,avg:avgOf(ms)})).sort((a,b)=>(a.avg??9)-(b.avg??9));
+  document.getElementById("parties").innerHTML=rows.map(({k,ms,avg})=>{const [c,p]=k.split("|"); const g=ms[0].group;
+    return `<tr data-p="${esc(k)}" aria-pressed="${fParty===k}"><td>${flag((C[c]||{}).iso2)} <b>${esc(p)}</b><br><span style="color:var(--muted);font-size:12px">${esc(ms[0].partyName)}</span></td>
+      <td class="hide-sm"><span class="sw" style="display:inline-block;background:var(--g-${g});vertical-align:-1px"></span> ${esc(G[g].code)}</td>
+      <td>${ms.length}</td><td style="width:38%"><div class="bar">${stackBar(ms)}</div></td><td style="font-weight:900;font-variant-numeric:tabular-nums">${fmt(avg)}</td></tr>`;}).join("");
+}
+document.getElementById("parties").addEventListener("click",e=>{const tr=e.target.closest("tr[data-p]"); if(tr){ fParty=fParty===tr.dataset.p?null:tr.dataset.p; refresh(); }});
+
+// ---------- countries ----------
+function renderTiles(){
+  const cells={};
+  for(const [c,[x,y]] of Object.entries(GRID)){ const ms=M.filter(m=>m.country===c); const a=avgOf(ms);
+    cells[y*9+x]=`<div class="tile${fCountry===c?" sel":""}" data-c="${c}" style="background:${a==null?css("--none"):css(bucket(a).v)}" title="${esc(cname(c))}: ${fmt(a)} (${ms.length} MEPs)">${(C[c]||{}).iso2||c}<small>${fmt(a)}</small></div>`; }
+  let h=""; for(let i=0;i<72;i++) h+=cells[i]||"<div></div>";
+  document.getElementById("tiles").innerHTML=h;
+}
+document.getElementById("tiles").addEventListener("click",e=>{const t=e.target.closest(".tile"); if(t){ fCountry=fCountry===t.dataset.c?null:t.dataset.c; refresh(); }});
+
+// ---------- table ----------
+const fB=document.getElementById("fB"); fB.innerHTML+=BUCKETS.map(b=>`<option value="${b.k}">${b.name}</option>`).join("");
+fB.addEventListener("input",()=>{fBucket=fB.value||null; refresh();});
+let sortK="score", sortDir=-1, limit=60;
+function renderTable(reset){
+  if(reset) limit=60;
+  const q=document.getElementById("q").value.trim().toLowerCase();
+  const list=M.filter(m=>passes(m)&&(!q||m.name.toLowerCase().includes(q)||m.party.toLowerCase().includes(q)||cname(m.country).toLowerCase().includes(q)))
+    .sort((a,b)=>{let x=a[sortK],y=b[sortK]; if(sortK==="score"){x=x??-9;y=y??-9;} if(sortK==="name"){x=a.last;y=b.last;} return (x>y?1:x<y?-1:0)*sortDir;});
+  document.getElementById("rows").innerHTML=list.slice(0,limit).map(m=>{const b=bucket(m.score);
+    return `<tr data-id="${m.id}"><td><div class="who"><img loading="lazy" src="${esc(m.photo)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ph'}))"><div><b>${esc(m.name)}</b> <span class="fb X" style="border-color:var(--g-${m.group})">${G[m.group].code}</span></div></div></td>
+      <td>${flag((C[m.country]||{}).iso2)} ${m.country}</td><td class="hide-sm">${esc(m.party)}</td>
+      <td><div style="display:flex;align-items:center;gap:10px"><span style="font-weight:900;min-width:42px;font-variant-numeric:tabular-nums">${fmt(m.score)}</span>${m.score==null?"":`<div class="meter" style="flex:1"><i style="left:${(m.score+1)/2*100}%"></i></div>`}</div></td>
+      <td class="hide-sm"><span class="lbl"><span class="sw" style="background:var(${b.v})"></span>${esc(m.label)}</span></td></tr>`;}).join("")
+    || `<tr><td colspan="5" style="color:var(--muted);padding:20px">No MEPs match.</td></tr>`;
+  const shown=Math.min(limit,list.length), left=list.length-shown;
+  document.getElementById("count").textContent=list.length?`Showing ${shown} of ${list.length}`:"";
+  const more=document.getElementById("more"); more.hidden=left<=0; more.textContent=`Show ${Math.min(100,left)} more (${left} left)`;
+  const chips=[]; if(fCountry) chips.push(["c",cname(fCountry)]); if(fParty) chips.push(["p",fParty.split("|")[1]]); fGroups.forEach(k=>chips.push(["g:"+k,G[k].name]));
+  document.getElementById("chips").innerHTML=chips.map(([k,t])=>`<button class="chip" data-clr="${k}">${esc(t)} ✕</button>`).join(" ");
+}
+document.getElementById("chips").addEventListener("click",e=>{const b=e.target.closest("[data-clr]"); if(!b) return; const k=b.dataset.clr;
+  if(k==="c") fCountry=null; if(k==="p") fParty=null; if(k.startsWith("g:")) fGroups.delete(k.slice(2)); refresh();});
+document.getElementById("more").onclick=()=>{limit+=100; renderTable();};
+document.getElementById("q").addEventListener("input",()=>renderTable(true));
+document.querySelectorAll("th[data-k]").forEach(th=>th.onclick=()=>{const k=th.dataset.k; if(sortK===k) sortDir*=-1; else {sortK=k; sortDir=k==="score"?-1:1;} renderTable();});
+document.getElementById("rows").addEventListener("click",e=>{const tr=e.target.closest("tr[data-id]"); if(tr) openMember(tr.dataset.id);});
+function refresh(){ syncBar(); paint(); renderSel(); renderParties(); renderTiles(); renderTable(true); }
+
+// ---------- drawer ----------
+const drawer=document.getElementById("drawer"), scrim=document.getElementById("scrim");
+function closeDrawer(){drawer.classList.remove("open"); scrim.classList.remove("on"); drawer.setAttribute("aria-hidden","true"); selected=null; paint(); if(location.hash) history.replaceState(null,"",location.pathname);}
+scrim.onclick=closeDrawer; document.addEventListener("keydown",e=>{if(e.key==="Escape") closeDrawer();});
+function openMember(id){
+  const m=byId[id]; if(!m) return; selected=id; paint();
+  const b=bucket(m.score), link=(u,t)=>u?`<a href="${esc(u)}" target="_blank" rel="noopener">${t}</a>`:"";
+  const castName={F:"For",A:"Against",B:"Abstained",N:"Did not vote"};
+  const votes=m.votes.map(([i,val,cast])=>({v:V[i],val,cast}));
+  const dot=val=>`<span class="dot" style="background:${val>0?css("--b2"):val<0?css("--bm2"):css("--none")}"></span>`;
+  let wp=0,wa=0; votes.forEach(({v,val})=>{if(val>0)wp+=v.weight; else if(val<0)wa+=v.weight;});
+  const pro=votes.filter(x=>x.val>0).length, anti=votes.filter(x=>x.val<0).length, abst=votes.filter(x=>x.cast==="B").length, nv=votes.filter(x=>x.cast==="N").length;
+  const vHtml=votes.map(({v,val,cast})=>`<li>${dot(val)}<span><b>${esc(v.label)}</b><br>
+    <span class="d">Voted <b>${castName[cast]}</b> · ${val>0?"pro-Ukraine":val<0?"anti-Ukraine":"not counted"} · weight ${v.weight}${v.dir==="anti"?" · voting FOR = anti-Ukraine":""}</span>
+    ${v.auto?`<span class="fix">⚠ Added automatically and not reviewed yet: whether FOR is pro- or anti-Ukraine was guessed by a simple rule.</span>`:""}
+    <span class="why">Result: ${v.for} for, ${v.against} against, ${v.abst} abstained · ${esc(v.title)}</span>
+    <span class="src">${link(v.htv,"Vote on HowTheyVote.eu ↗")}${link(v.ta,"Adopted text ↗")}</span></span><span class="d">${v.date}</span></li>`).join("");
+  document.getElementById("dIn").innerHTML=`<button class="x" aria-label="Close" id="dx">×</button>
+    <div class="dhead"><img src="${esc(m.photo)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ph'}))"><div><h4>${esc(m.name)}</h4>
+      <div>${flag((C[m.country]||{}).iso2)} ${esc(cname(m.country))} · <span class="sw" style="display:inline-block;background:var(--g-${m.group});vertical-align:-1px"></span> ${esc(G[m.group].name)}</div>
+      <div>${esc(m.partyName)}${m.party&&m.party!==m.partyName?` (${esc(m.party)})`:""}</div></div></div>
+    <div class="big"><b style="color:${css(b.v)}">${esc(m.label)}</b><span>score ${fmt(m.score)}</span></div>
+    ${m.score==null?"":`<div class="meter"><i style="left:${(m.score+1)/2*100}%"></i></div>`}
+    <p style="color:var(--muted);font-size:13px;margin:12px 0 0">${pro} pro-Ukraine votes · ${anti} anti-Ukraine · ${abst} abstentions · ${nv} did not vote</p>
+    <details class="math"><summary>How this score was calculated</summary>
+      <p>Pro-Ukraine weight <b>${wp.toFixed(2)}</b> − anti-Ukraine weight <b>${wa.toFixed(2)}</b>, divided by total <b>${(wp+wa).toFixed(2)}</b> = <b>${fmt(m.raw)}</b>.</p>
+      ${m.tier!=="full"&&m.score!=null?`<p>Only ${m.n} counted votes, so the score is blended toward the ${esc(G[m.group].name)} average (${fmt(m.prior)}) → <b>${fmt(m.score)}</b>.</p>`:""}
+      ${m.score==null?`<p>Fewer than 2 counted votes, so no score is shown (for example, the President of Parliament does not vote, and MEPs who joined recently have few votes).</p>`:""}
+      <p>Abstentions and absences are not counted, the same rule as the US page.</p></details>
+    <div class="dsub">Ukraine votes (${votes.length})</div>
+    <ul class="vl">${vHtml||'<li><span></span><span style="color:var(--muted)">No tracked votes during this MEP\'s term.</span><span></span></li>'}</ul>
+    <p style="margin-top:18px;font-size:13px">${link(m.web,"Profile on europarl.europa.eu ↗")} · ${link(`https://howtheyvote.eu/members/${m.id}`,"All votes on HowTheyVote.eu ↗")}</p>`;
+  document.getElementById("dx").onclick=closeDrawer;
+  drawer.classList.add("open"); scrim.classList.add("on"); drawer.setAttribute("aria-hidden","false"); drawer.scrollTop=0;
+  history.replaceState(null,"","#"+id);
+}
+refresh();
+if(location.hash.length>1) openMember(location.hash.slice(1));
+addEventListener("hashchange",()=>{const id=location.hash.slice(1); if(id&&id!==selected) openMember(id);});
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{paint();renderTiles();});
+})();
+</script>
+</body>
+</html>
