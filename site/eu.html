@@ -16,12 +16,8 @@
 .fbar select{font:inherit;font-size:14px;text-transform:none;letter-spacing:0;font-weight:500;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);min-width:170px;max-width:260px}
 .fbar .clr{font:inherit;font-size:13px;font-weight:700;padding:8px 12px;border-radius:999px;border:0;background:var(--accent);color:#000;cursor:pointer}
 .fbar .flt{flex-direction:row;margin-left:auto;align-items:center;text-transform:none;letter-spacing:0;font-size:13px}
-.flegend{flex-direction:row}
-.flegend span{padding:2px 4px}
 .statcap{font-size:12px;color:var(--muted);text-align:center;margin-top:6px}
-.gpick{flex-basis:100%;display:flex;flex-direction:column;gap:6px}
 .glab{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}.glab i{text-transform:none;letter-spacing:0;font-style:normal;font-weight:500}
-#gpills{display:flex;flex-wrap:wrap;gap:6px}
 .gpill{font:inherit;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
 .gpill i{font-style:normal;color:var(--muted);font-weight:500}
 .gpill .ck{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--muted);display:inline-flex;align-items:center;justify-content:center;font-size:11px;line-height:1}
@@ -64,7 +60,6 @@
       <label>Party <select id="fP" aria-label="National party"><option value="">All parties</option></select></label>
       <label>Rating <select id="fB" aria-label="Rating"><option value="">All ratings</option></select></label>
       <button class="clr" id="clrAll" hidden>Clear filters ✕</button>
-      <div class="gpick"><span class="glab">Groups <i>(click to select, several allowed)</i></span><div id="gpills" role="group" aria-label="Political groups"></div></div>
       <label class="flt"><input type="checkbox" id="fLabels" checked> Group labels</label>
     </div>
     <div class="epgrid">
@@ -172,7 +167,7 @@ function drawHemi(){
   svg.innerHTML=h+t+`<text class="center-n" x="600" y="545" text-anchor="middle" id="epN"></text><text class="center-l" x="600" y="585" text-anchor="middle" id="epL"></text>`;
 }
 drawHemi();
-document.getElementById("flegend").innerHTML=GORDER.map(k=>`<span><b>${G[k].code}</b>${esc(G[k].name)}</span>`).join("");
+document.getElementById("flegend").innerHTML=`<span class="glab">Groups <i>(click to select, several allowed; the code is shown on each seat)</i></span><div class="fpills" id="gpills" role="group" aria-label="Political groups"></div>`;
 const groupsLabel=()=>[...fGroups].map(k=>G[k].code).join(" + ");
 const exceptBucket=m=>(!fCountry||m.country===fCountry)&&(!fGroups.size||fGroups.has(m.group))&&(!fParty||m.country+"|"+m.party===fParty);
 document.getElementById("fLabels").addEventListener("change",e=>document.getElementById("ep").classList.toggle("nolabels",!e.target.checked));
@@ -213,7 +208,7 @@ function syncBar(){
   fC.value=fCountry||""; fB.value=fBucket||"";
   const gbase=M.filter(m=>(!fCountry||m.country===fCountry)&&(!fParty||m.country+"|"+m.party===fParty)&&(!fBucket||bucket(m.score).k===fBucket));
   document.getElementById("gpills").innerHTML=GORDER.map(k=>{const n=gbase.filter(m=>m.group===k).length;
-    return `<button class="gpill" data-g="${k}" aria-pressed="${fGroups.has(k)}" ${n?"":"disabled"} title="${esc(G[k].name)}"><span class="ck">${fGroups.has(k)?"✓":""}</span><span class="sw" style="background:var(--g-${k})"></span>${G[k].code} <i>${n}</i></button>`;}).join("");
+    return `<button class="gpill" data-g="${k}" aria-pressed="${fGroups.has(k)}" ${n?"":"disabled"} title="${esc(G[k].name)}"><span class="ck">${fGroups.has(k)?"✓":""}</span><span class="sw" style="background:var(--g-${k})"></span><b>${G[k].code}</b> ${esc(G[k].name)} <i>${n}</i></button>`;}).join("")+(fGroups.size?`<button class="gpill clrf" data-clrg="1">Clear ✕</button>`:"");
   // party list follows the chosen country (and group)
   const by={}; M.filter(m=>m.party&&(!fCountry||m.country===fCountry)&&(!fGroups.size||fGroups.has(m.group))).forEach(m=>{const k=m.country+"|"+m.party; by[k]=(by[k]||0)+1;});
   const opts=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([k,n])=>{const [c,p]=k.split("|"); return `<option value="${esc(k)}">${fCountry?"":flag((C[c]||{}).iso2)+" "}${esc(p)} (${n})</option>`;});
@@ -242,7 +237,7 @@ document.getElementById("selpanel").addEventListener("click",e=>{const b=e.targe
 
 // ---------- groups ----------
 function toggleGroup(k){ fGroups.has(k)?fGroups.delete(k):fGroups.add(k); }
-document.getElementById("gpills").addEventListener("click",e=>{const b=e.target.closest(".gpill"); if(b&&!b.disabled){ toggleGroup(b.dataset.g); refresh(); }});
+document.getElementById("flegend").addEventListener("click",e=>{const b=e.target.closest(".gpill"); if(!b||b.disabled) return; if(b.dataset.clrg) fGroups.clear(); else toggleGroup(b.dataset.g); refresh();});
 function stackBar(ms){ return BUCKETS.map(b=>({b,n:ms.filter(m=>bucket(m.score).k===b.k).length})).filter(c=>c.n).map(c=>`<i style="width:${c.n/ms.length*100}%;background:var(${c.b.v})" title="${c.b.name}: ${c.n}"></i>`).join(""); }
 function avgOf(ms){ const s=ms.filter(m=>m.score!=null); return s.length?s.reduce((a,m)=>a+m.score,0)/s.length:null; }
 
